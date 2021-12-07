@@ -1,7 +1,9 @@
 const connection = require('./db-config');
 const express = require('express');
-const app = express();
 const setupRoutes = require('./routes');
+const cookieParser = require('cookie-parser');
+
+const app = express();
 
 const port = process.env.PORT || 3000;
 
@@ -14,6 +16,8 @@ connection.connect((err) => {
 });
 
 app.use(express.json());
+app.use(cookieParser());
+
 setupRoutes(app);
 
 app.listen(port, () => {

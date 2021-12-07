@@ -2,11 +2,16 @@
 const usersRouter = require("express").Router();
 // Import the user model that we'll need in controller functions
 const User = require("../models/user");
+const { calculateToken } = require("../helpers/users");
+
 
 usersRouter.get("/", async (req, res, next) => {
   try {
     const [result] = await User.findMany();
-    delete result[0].hashedPassword;
+    result.map((user) => {
+      delete user.hashedPassword
+      delete user.token
+    });
     res.status(200).json(result);
   } catch (err) {
     console.log(err);
@@ -17,12 +22,15 @@ usersRouter.get("/", async (req, res, next) => {
 usersRouter.get("/:id", async (req, res, next) => {
   try {
     const {id} = req.params;
-    const results = await User.findOne(id);
-    delete result[0].hashedPassword;
-      if(results && results.length == 0){
+    const result = await User.findOne(id);
+    // result.map((user) => {
+    //   delete user.hashedPassword
+    //   delete user.token
+    // });
+      if(result && result.length == 0){
         res.status(404).send('Error user not found');
       } else {
-        res.status(200).json(results);
+        res.status(200).json(result);
       }
     } catch (err) {
       console.log(err)
@@ -35,12 +43,13 @@ usersRouter.post("/", async (req, res, next) => {
     const { body } = req;
     const email = body.email;
     const [isUserExisting] = await User.findByEmail(email);
-    delete isUserExisting.hashedPassword;
     if (isUserExisting) {
       return res.status(409).json({ message: 'This email is already used' });
     };
     const error = User.validate(body);
     const [result] = await User.create(body);
+    delete body.hashedPassword;
+    delete body.token;
     if (error) {
       console.log(error);
       res.status(422).json({ validationErrors: error.details });
@@ -62,9 +71,8 @@ usersRouter.put("/:id", async (req, res, next) => {
     const { body } = req;
     let existingUser = null;
     let validationErrors = null;
-    const [results] = await User.findOne(id);
-    console.log(results);
-    existingUser = results;
+    const [user] = await User.findOne(id);
+    existingUser = user;
     if (!existingUser) {
       return res.status(404).send(`User with id ${id} not found.`);
     }
@@ -73,6 +81,8 @@ usersRouter.put("/:id", async (req, res, next) => {
     if (validationErrors) {
       return res.status(422).json({ validationErrors: validationErrors.details });
     } else {
+      delete user.hashedPassword;
+      delete user.token;
       res.status(201).json(
         { ...existingUser, ...req.body }
       );
