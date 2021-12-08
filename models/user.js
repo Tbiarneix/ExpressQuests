@@ -81,10 +81,10 @@ const create = (user) => {
       user.hashedPassword = hashPassword;
       return user;
     })
-    .then((user) => {
-      user.token = calculateToken(user.email);
-      return user;
-    })
+    // .then((user) => {
+    //   user.token = calculateToken(user.email);
+    //   return user;
+    // })
     .then((user) => {
       return connection.promise().query("INSERT INTO users SET ?", [user]);
     })

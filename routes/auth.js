@@ -1,11 +1,12 @@
 const authRouter = require("express").Router();
 const User = require("../models/user");
-const { calculateToken } = require("../helpers/users");
+const { calculateToken, decodedToken } = require("../helpers/users");
 
 authRouter.post("/login", async (req, res, next) => {
   try {
     const { body } = req;
     const email = body.email;
+    const id = body.id;
     const password = body.password;
     const user = await User.findByEmail(email);
     if (!user) {
@@ -16,8 +17,8 @@ authRouter.post("/login", async (req, res, next) => {
         user[0].hashedPassword
       );
       if (passwordIsCorrect) {
-        const token = calculateToken(email);
-        User.update({ token: token }, user.id);
+        const token = calculateToken(email, id);
+        console.log(decodedToken(token));
         res.cookie("user_token", token);
         res.send();
       } else {

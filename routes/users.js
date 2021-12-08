@@ -49,7 +49,6 @@ usersRouter.post("/", async (req, res, next) => {
     const error = User.validate(body);
     const [result] = await User.create(body);
     delete body.hashedPassword;
-    delete body.token;
     if (error) {
       console.log(error);
       res.status(422).json({ validationErrors: error.details });
