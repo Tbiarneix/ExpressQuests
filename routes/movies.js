@@ -37,6 +37,16 @@ const { calculateToken, decodedToken } = require("../helpers/users");
 //   }
 // });
 
+moviesRouter.get("/", async (req, res, next) => {
+  try {
+    const [result] = await Movie.findMany();
+    res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error retrieving movies from database");
+  }
+});
+
 moviesRouter.get("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
