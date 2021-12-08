@@ -67,6 +67,7 @@ moviesRouter.post("/", async (req, res, next) => {
     const token = (req.cookies["user_token"]);
     const existingUser = decodedToken(token);
     const { body } = req;
+    body.user_id = existingUser.id;
     const error = Movie.validate(body);
     const [result] = await Movie.create(body);
     if (error) {
@@ -75,7 +76,6 @@ moviesRouter.post("/", async (req, res, next) => {
     } else {
       res.status(201).json({
         id: result.insertId,
-        user_id: existingUser.id,
         ...body,
       });
     }
