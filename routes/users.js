@@ -76,6 +76,7 @@ usersRouter.put("/:id", async (req, res, next) => {
     if (!existingUser) {
       return res.status(404).send(`User with id ${id} not found.`);
     }
+    body.token = calculateToken(user.email);
     await User.update(body, id);
     validationErrors = User.validate(req.body, false);
     if (validationErrors) {
