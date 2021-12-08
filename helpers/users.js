@@ -9,7 +9,7 @@ const calculateToken = (userEmail = "", userId = "") => {
 };
 
 const decodedToken = (token) => {
-    return jwt_decode(token);
+    console.log(jwt_decode(token));
 }
 
 module.exports = { calculateToken, decodedToken };
