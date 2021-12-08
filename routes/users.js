@@ -22,6 +22,7 @@ usersRouter.get("/", async (req, res, next) => {
 usersRouter.get("/:id", async (req, res, next) => {
   try {
     const {id} = req.params;
+    console.log(id);
     const result = await User.findOne(id);
     // result.map((user) => {
     //   delete user.hashedPassword

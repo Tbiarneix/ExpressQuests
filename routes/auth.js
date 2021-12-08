@@ -6,9 +6,9 @@ authRouter.post("/login", async (req, res, next) => {
   try {
     const { body } = req;
     const email = body.email;
-    const id = body.id;
     const password = body.password;
     const user = await User.findByEmail(email);
+    const id = user[0].id;
     if (!user) {
       res.status(401).send("Invalid credentials");
     } else {

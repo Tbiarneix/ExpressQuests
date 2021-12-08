@@ -3,38 +3,39 @@ const moviesRouter = require("express").Router();
 // Import the movie model that we'll need in controller functions
 const Movie = require("../models/movie");
 const User = require("../models/user");
+const { calculateToken, decodedToken } = require("../helpers/users");
 
-moviesRouter.get("/", async (req, res, next) => {
-  try {
-    const { user_token } = req.cookies;
-    const results = await User.findByToken(user_token);
-    console.log(results);
-    if (results.id !== 0) {
-      const userMovies = await User.findMoviesByUser(results.id);
-      if (userMovies && userMovies.length == 0) {
-        res.status(404).send("Error movies not found");
-      } else {
-        res.status(200).json(userMovies);
-      }
-    } else {
-      const { user_token } = req.cookies;
-      console.log(user_token);
-      User.findByToken(user_token)
-        .then((user) => {
-          console.log(user);
-          User.findMoviesByUser(user.id)
-            .then((movies) => {
-              res.send(movies);
-            })
-            .catch(() => res.status(500).send("Error"));
-        })
-        .catch(() => res.status(401).send("Unauthorized access"));
-    }
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("Error retrieving movies from database");
-  }
-});
+// moviesRouter.get("/", async (req, res, next) => {
+//   try {
+//     const { user_token } = req.cookies;
+//     const results = await User.findByToken(user_token);
+//     console.log(results);
+//     if (results.id !== 0) {
+//       const userMovies = await User.findMoviesByUser(results.id);
+//       if (userMovies && userMovies.length == 0) {
+//         res.status(404).send("Error movies not found");
+//       } else {
+//         res.status(200).json(userMovies);
+//       }
+//     } else {
+//       const { user_token } = req.cookies;
+//       console.log(user_token);
+//       User.findByToken(user_token)
+//         .then((user) => {
+//           console.log(user);
+//           User.findMoviesByUser(user.id)
+//             .then((movies) => {
+//               res.send(movies);
+//             })
+//             .catch(() => res.status(500).send("Error"));
+//         })
+//         .catch(() => res.status(401).send("Unauthorized access"));
+//     }
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).send("Error retrieving movies from database");
+//   }
+// });
 
 moviesRouter.get("/:id", async (req, res, next) => {
   try {
@@ -53,7 +54,8 @@ moviesRouter.get("/:id", async (req, res, next) => {
 
 moviesRouter.post("/", async (req, res, next) => {
   try {
-    const existingUser = await User.findByToken(req.cookies["user_token"]);
+    const token = (req.cookies["user_token"]);
+    const existingUser = decodedToken(token);
     const { body } = req;
     const error = Movie.validate(body);
     const [result] = await Movie.create(body);
